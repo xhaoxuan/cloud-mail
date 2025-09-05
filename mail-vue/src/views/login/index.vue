@@ -10,88 +10,116 @@
     <div v-else :style="background"></div>
     <div class="form-wrapper">
       <div class="container">
+        <div class="logo-container">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="url(#gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="L22 6L12 13L2 6" stroke="url(#gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
         <span class="form-title">{{ settingStore.settings.title }}</span>
         <span class="form-desc" v-if="show === 'login'">{{ $t('loginTitle') }}</span>
         <span class="form-desc" v-else>{{ $t('regTitle') }}</span>
-        <div v-show="show === 'login'">
-          <el-input :class="settingStore.settings.loginDomain === 0 ? 'email-input' : ''" v-model="form.email"
-                    type="text" :placeholder="$t('emailAccount')" autocomplete="off">
-            <template #append v-if="settingStore.settings.loginDomain === 0">
-              <div @click.stop="openSelect">
-                <el-select
-                    v-if="show === 'login'"
-                    ref="mySelect"
-                    v-model="suffix"
-                    :placeholder="$t('select')"
-                    class="select"
-                >
-                  <el-option
-                      v-for="item in domainList"
-                      :key="item"
-                      :label="item"
-                      :value="item"
-                  />
-                </el-select>
-                <div style="color: var(--el-text-color-primary)">
-                  <span>{{ suffix }}</span>
-                  <Icon class="setting-icon" icon="mingcute:down-small-fill" width="20" height="20"/>
+        <transition name="form-fade" mode="out-in">
+          <div v-show="show === 'login'" key="login">
+            <el-input :class="settingStore.settings.loginDomain === 0 ? 'email-input' : ''" v-model="form.email"
+                      type="text" :placeholder="$t('emailAccount')" autocomplete="off">
+              <template #append v-if="settingStore.settings.loginDomain === 0">
+                <div @click.stop="openSelect">
+                  <el-select
+                      v-if="show === 'login'"
+                      ref="mySelect"
+                      v-model="suffix"
+                      :placeholder="$t('select')"
+                      class="select"
+                  >
+                    <el-option
+                        v-for="item in domainList"
+                        :key="item"
+                        :label="item"
+                        :value="item"
+                    />
+                  </el-select>
+                  <div style="color: var(--el-text-color-primary)">
+                    <span>{{ suffix }}</span>
+                    <Icon class="setting-icon" icon="mingcute:down-small-fill" width="20" height="20"/>
+                  </div>
                 </div>
-              </div>
-            </template>
-          </el-input>
-          <el-input v-model="form.password" :placeholder="$t('password')" type="password" autocomplete="off">
-          </el-input>
-          <el-button class="btn" type="primary" @click="submit" :loading="loginLoading"
-          >{{ $t('loginBtn') }}
-          </el-button>
-        </div>
-        <div v-show="show !== 'login'">
-          <el-input class="email-input" v-model="registerForm.email" type="text" :placeholder="$t('emailAccount')"
-                    autocomplete="off">
-            <template #append>
-              <div @click.stop="openSelect">
-                <el-select
-                    v-if="show !== 'login'"
-                    ref="mySelect"
-                    v-model="suffix"
-                    :placeholder="$t('select')"
-                    class="select"
-                >
-                  <el-option
-                      v-for="item in domainList"
-                      :key="item"
-                      :label="item"
-                      :value="item"
-                  />
-                </el-select>
-                <div>
-                  <span>{{ suffix }}</span>
-                  <Icon class="setting-icon" icon="mingcute:down-small-fill" width="20" height="20"/>
-                </div>
-              </div>
-            </template>
-          </el-input>
-          <el-input v-model="registerForm.password" :placeholder="$t('password')" type="password" autocomplete="off"/>
-          <el-input v-model="registerForm.confirmPassword" :placeholder="$t('confirmPwd')" type="password"
-                    autocomplete="off"/>
-          <el-input v-if="settingStore.settings.regKey === 0" v-model="registerForm.code" :placeholder="$t('regKey')"
-                    type="text" autocomplete="off"/>
-          <el-input v-if="settingStore.settings.regKey === 2" v-model="registerForm.code"
-                    :placeholder="$t('regKeyOptional')" type="text" autocomplete="off"/>
-          <div v-show="verifyShow"
-               class="register-turnstile"
-               :data-sitekey="settingStore.settings.siteKey"
-               data-callback="onTurnstileSuccess"
-               data-error-callback="onTurnstileError"
-               data-after-interactive-callback="loadAfter"
-               data-before-interactive-callback="loadBefore"
-          >
-            <span style="font-size: 12px;color: #F56C6C" v-if="botJsError">{{ $t('verifyModuleFailed') }}</span>
+              </template>
+            </el-input>
+            <el-input v-model="form.password" :placeholder="$t('password')" type="password" autocomplete="off">
+            </el-input>
+            <el-button class="btn" type="primary" @click="submit" :loading="loginLoading"
+            >
+              <span v-if="!loginLoading">{{ $t('loginBtn') }}</span>
+              <span v-else class="loading-text">
+                <i class="loading-spinner"></i>
+                {{ $t('loginBtn') }}ing...
+              </span>
+            </el-button>
           </div>
-          <el-button class="btn" type="primary" @click="submitRegister" :loading="registerLoading"
-          >{{ $t('regBtn') }}
-          </el-button>
-        </div>
+        </transition>
+        <transition name="form-fade" mode="out-in">
+          <div v-show="show !== 'login'" key="register">
+            <el-input class="email-input" v-model="registerForm.email" type="text" :placeholder="$t('emailAccount')"
+                      autocomplete="off">
+              <template #append>
+                <div @click.stop="openSelect">
+                  <el-select
+                      v-if="show !== 'login'"
+                      ref="mySelect"
+                      v-model="suffix"
+                      :placeholder="$t('select')"
+                      class="select"
+                  >
+                    <el-option
+                        v-for="item in domainList"
+                        :key="item"
+                        :label="item"
+                        :value="item"
+                    />
+                  </el-select>
+                  <div>
+                    <span>{{ suffix }}</span>
+                    <Icon class="setting-icon" icon="mingcute:down-small-fill" width="20" height="20"/>
+                  </div>
+                </div>
+              </template>
+            </el-input>
+            <el-input v-model="registerForm.password" :placeholder="$t('password')" type="password" autocomplete="off"/>
+            <el-input v-model="registerForm.confirmPassword" :placeholder="$t('confirmPwd')" type="password"
+                      autocomplete="off"/>
+            <el-input v-if="settingStore.settings.regKey === 0" v-model="registerForm.code" :placeholder="$t('regKey')"
+                      type="text" autocomplete="off"/>
+            <el-input v-if="settingStore.settings.regKey === 2" v-model="registerForm.code"
+                      :placeholder="$t('regKeyOptional')" type="text" autocomplete="off"/>
+            <div v-show="verifyShow"
+                 class="register-turnstile"
+                 :data-sitekey="settingStore.settings.siteKey"
+                 data-callback="onTurnstileSuccess"
+                 data-error-callback="onTurnstileError"
+                 data-after-interactive-callback="loadAfter"
+                 data-before-interactive-callback="loadBefore"
+            >
+              <span style="font-size: 12px;color: #F56C6C" v-if="botJsError">{{ $t('verifyModuleFailed') }}</span>
+            </div>
+            <el-button class="btn" type="primary" @click="submitRegister" :loading="registerLoading"
+            >
+              <span v-if="!registerLoading">{{ $t('regBtn') }}</span>
+              <span v-else class="loading-text">
+                <i class="loading-spinner"></i>
+                {{ $t('regBtn') }}ing...
+              </span>
+            </el-button>
+          </div>
+        </transition>
         <template v-if="settingStore.settings.register === 0">
           <div class="switch" @click="show = 'register'" v-if="show === 'login'">{{ $t('noAccount') }}
             <span>{{ $t('regSwitch') }}</span></div>
@@ -393,90 +421,366 @@ function submitRegister() {
 </style>
 
 <style lang="scss" scoped>
+.form-fade-enter-active,
+.form-fade-leave-active {
+  transition: all 0.3s ease;
+}
 
+.form-fade-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.form-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.loading-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  // 暗色主题适配
+  @media (prefers-color-scheme: dark) {
+    #login-box {
+      background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483);
+    }
+    
+    .container {
+      background: rgba(30, 30, 30, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      
+      &::before {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+      }
+    }
+    
+    .form-title {
+      color: #ffffff;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .form-desc {
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    :deep(.el-input__wrapper) {
+      background: rgba(40, 40, 40, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      
+      .el-input__inner {
+        color: rgba(255, 255, 255, 0.9);
+        
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.4);
+        }
+      }
+    }
+    
+    .email-input :deep(.el-input__wrapper) {
+      background: rgba(40, 40, 40, 0.8);
+    }
+    
+    :deep(.el-input-group__append) {
+      background: rgba(40, 40, 40, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-left: none;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .switch {
+      color: rgba(255, 255, 255, 0.6);
+      
+      span {
+        color: #667eea;
+        
+        &:hover {
+          color: #764ba2;
+        }
+      }
+    }
+    
+    .logo-icon {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+    }
+  }
 .form-wrapper {
-  position: fixed;
+  position: absolute;
   right: 0;
+  top: 0;
+  width: 450px;
   height: 100%;
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(10px);
   @media (max-width: 767px) {
     width: 100%;
+    backdrop-filter: none;
   }
-}
-
-.container {
-  background: v-bind(loginOpacity);
-  padding-left: 40px;
-  padding-right: 40px;
+}.container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  padding: 50px 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   width: 450px;
-  height: 100%;
-  border-left: 1px solid var(--login-border);
-  box-shadow: var(--el-box-shadow-light);
+  height: fit-content;
+  max-height: 90vh;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 35px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+  
   @media (max-width: 1024px) {
-    padding: 20px 18px;
+    padding: 40px 30px;
     width: 384px;
     margin-left: 18px;
+    border-radius: 16px;
   }
   @media (max-width: 767px) {
-    border: 1px solid var(--login-border);
-    padding: 20px 18px;
-    border-radius: 6px;
-    height: fit-content;
-    width: 100%;
+    padding: 25px 20px;
+    border-radius: 20px;
+    width: calc(100% - 36px);
     margin-right: 18px;
     margin-left: 18px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   }
+  
+  @media (max-width: 480px) {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
 
   .btn {
-    height: 36px;
+    height: 48px;
     width: 100%;
-    border-radius: 6px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+      
+      &::before {
+        left: 100%;
+      }
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
   }
 
   .form-desc {
     margin-top: 5px;
-    margin-bottom: 18px;
-    color: var(--form-desc-color);
+    margin-bottom: 30px;
+    color: rgba(0, 0, 0, 0.6);
+    text-align: center;
+    font-size: 15px;
+    font-weight: 400;
+  }
+
+  .logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .logo-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    animation: logoFloat 3s ease-in-out infinite;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+    }
+    
+    svg {
+      width: 32px;
+      height: 32px;
+      animation: logoRotate 6s linear infinite;
+    }
+  }
+  
+  @keyframes logoFloat {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  @keyframes logoRotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   .form-title {
-    font-weight: bold;;
-    font-size: 22px !important;
+    font-weight: 700;
+    font-size: 28px !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    text-align: center;
+    letter-spacing: -0.5px;
   }
 
   .switch {
-    margin-top: 20px;
+    margin-top: 30px;
     text-align: center;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
 
     span {
-      color: var(--login-switch-color);
+      color: #667eea;
       cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        color: #764ba2;
+        text-decoration: underline;
+      }
     }
   }
 
   :deep(.el-input__wrapper) {
-    border-radius: 6px;
-    background: var(--el-bg-color);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
   }
 
   .email-input :deep(.el-input__wrapper) {
-    border-radius: 6px 0 0 6px;
-    background: var(--el-bg-color);
+    border-radius: 12px 0 0 12px;
+    background: rgba(255, 255, 255, 0.8);
+    border-right: none;
   }
 
   .el-input {
-    height: 38px;
+    height: 52px;
     width: 100%;
-    margin-bottom: 18px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+    }
+    
+    &:focus-within {
+      transform: translateY(-2px);
+      
+      :deep(.el-input__wrapper) {
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15) !important;
+        border-color: #667eea !important;
+      }
+    }
 
     :deep(.el-input__inner) {
-      height: 36px;
+      height: 50px;
+      font-size: 15px;
+      padding: 0 16px;
+      color: rgba(0, 0, 0, 0.8);
+      
+      &::placeholder {
+        color: rgba(0, 0, 0, 0.4);
+        font-weight: 400;
+      }
     }
   }
 }
@@ -492,10 +796,14 @@ function submitRegister() {
 
 :deep(.el-input-group__append) {
   padding: 0 !important;
-  padding-left: 8px !important;
-  padding-right: 4px !important;
-  background: var(--el-bg-color);
-  border-radius: 0 8px 8px 0;
+  padding-left: 12px !important;
+  padding-right: 8px !important;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 0 12px 12px 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-left: none;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
 .register-turnstile {
@@ -521,7 +829,9 @@ function submitRegister() {
 
 
 #login-box {
-  background: linear-gradient(to bottom, #2980b9, #6dd5fa, #fff);
+  background: linear-gradient(-45deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
   font: 100% Arial, sans-serif;
   height: 100%;
   margin: 0;
@@ -529,12 +839,40 @@ function submitRegister() {
   overflow-x: hidden;
   display: grid;
   grid-template-columns: 1fr;
+  position: relative;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+#login-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+  z-index: 1;
+  pointer-events: none;
 }
 
 
 #background-wrap {
   height: 100%;
-  z-index: 0;
+  z-index: 2;
+  position: relative;
 }
 
 @keyframes animateCloud {
